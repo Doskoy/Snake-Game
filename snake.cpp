@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////
 
 /*
-_kbhit function
+_kbhit function from http://www.flipcode.com/archives/_kbhit_for_Linux.shtml
 */
 #include <stdio.h>
 #include <sys/select.h>
@@ -145,6 +145,16 @@ public:
 		cout << "Fruits: " << fruits << endl;
 
 	}
+	void MoveHeadTail(string direction){
+
+	}
+	//Check if there is a fruit in a given position
+	bool IsThereAFruit(int positionX, int positionY){
+		if(positionX == fruit_position.x && positionY == fruit_position.y)
+			return true; 
+		else 
+			return false;
+	}
 
 	void Move(){
 		Input();
@@ -153,10 +163,9 @@ public:
 		if (looking == UP){
 			field[head_position.x][head_position.y] = 'o';
 			head_position.x--;
-			cout << head_position.x << endl;
 			field[head_position.x][head_position.y] = 'O';
 
-			if (head_position.x == fruit_position.x && head_position.y == fruit_position.y){
+			if (IsThereAFruit(head_position.x, head_position.y)){
 				end_tail.x++;
 				fruits++;
 				fruit_position.x = rand() % ROWS-2 + 2;
@@ -166,7 +175,7 @@ public:
 			
 			field[end_tail.x][end_tail.y] = ' ';
 			end_tail.x--;
-			// MEter toda la funcion dentro de la funcion esta de abajo. 
+			// Meter toda la funcion dentro de la funcion InsideField 
 			if (InsideField(head_position.x, head_position.y) == false)
 				GAMEOVER = true;
 		}
@@ -176,7 +185,7 @@ public:
 			head_position.x++;
 			field[head_position.x][head_position.y] = 'O';
 
-			if (head_position.x == fruit_position.x && head_position.y == fruit_position.y){
+			if (IsThereAFruit(head_position.x, head_position.y)){
 				end_tail.x--;
 				fruits++;
 				fruit_position.x = rand() % ROWS-2 + 2;
@@ -196,7 +205,7 @@ public:
 			head_position.y--;
 			field[head_position.x][head_position.y] = 'O';
 
-			if (head_position.x == fruit_position.x && head_position.y == fruit_position.y){
+			if (IsThereAFruit(head_position.x, head_position.y)){
 				end_tail.y++;
 				fruits++;
 				fruit_position.x = rand() % ROWS-2 + 2;
@@ -216,7 +225,7 @@ public:
 			head_position.y++;
 			field[head_position.x][head_position.y] = 'O';
 
-			if (head_position.x == fruit_position.x && head_position.y == fruit_position.y){
+			if (IsThereAFruit(head_position.x, head_position.y)){
 				end_tail.y--;
 				fruits++;
 				fruit_position.x = rand() % ROWS-2 + 2;
