@@ -48,9 +48,9 @@ struct Point{
 
 class Snake{
 private:
-	static const int ROWS = 20;
-	static const int COLUMNS = 40;
-	char field[ROWS][COLUMNS];
+	static const int ROWS = 40;
+	static const int COLUMNS = 20;
+	char field[COLUMNS][ROWS];
 	Directions looking; 
 	Point head_position;
 	Point fruit_position;
@@ -59,11 +59,11 @@ private:
 	Point end_tail;
 	int fruits;
 
-	bool InsideField (int x, int y){
-		return 0 <= x && x < ROWS && 0 <= y && y < COLUMNS;
+	bool InsideField (Point position){
+		return 0 <= position.x && position.x < COLUMNS && 0 <= position.y && position.y < ROWS;
 	}
 
-	//change the direction 
+	//change the direction, works with the ASCII value of numbers 
 	void Input(){
 		
 		int input = 9;
@@ -96,14 +96,14 @@ private:
 public: 
 	//Constructor
 	Snake(){
-		for (int i = 0; i < ROWS; i++)
-			for (int j = 0; j < COLUMNS; j++)
+		for (int i = 0; i < COLUMNS; i++)
+			for (int j = 0; j < ROWS; j++)
 				field[i][j] = ' ';
 		
-		head_position.x = ROWS/2;		
-		head_position.y = COLUMNS/2;
-		fruit_position.x = rand() % ROWS-2 + 2;
-		fruit_position.y = rand() % COLUMNS-2 + 2;
+		head_position.x = COLUMNS/2;		
+		head_position.y = ROWS/2;
+		fruit_position.x = rand() % COLUMNS-2 + 2;
+		fruit_position.y = rand() % ROWS-2 + 2;
 
 		end_tail = head_position;
 
@@ -117,17 +117,17 @@ public:
 	//Draw the world
 	void Draw (){
 		system("clear");
-		for (int j = 0 ; j < COLUMNS+2; j++)
+		for (int j = 0 ; j < ROWS+2; j++)
 			cout << "#";
 
 		cout << endl;
 
-		for (int i = 0; i < ROWS; i++){
-			for(int j = -1; j <= COLUMNS; j++){
+		for (int i = 0; i < COLUMNS; i++){
+			for(int j = -1; j <= ROWS; j++){
 				if (j == -1){
 					cout << "#";
 				}
-				else if (j == COLUMNS) {
+				else if (j == ROWS) {
 					cout << "#";
 				}
 				else
@@ -137,7 +137,7 @@ public:
 			cout << endl;
 		}
 
-		for (int j = 0 ; j < COLUMNS+2; j++)
+		for (int j = 0 ; j < ROWS+2; j++)
 			cout << "#";
 		cout << endl << endl << endl << endl;
 
@@ -149,11 +149,8 @@ public:
 
 	}
 	//Check if there is a fruit in a given position
-	bool IsThereAFruit(int positionX, int positionY){
-		if(positionX == fruit_position.x && positionY == fruit_position.y)
-			return true; 
-		else 
-			return false;
+	bool IsThereAFruit(Point position){
+		return position.x == fruit_position.x && position.y == fruit_position.y;
 	}
 
 	void Move(){
@@ -165,7 +162,7 @@ public:
 			head_position.x--;
 			field[head_position.x][head_position.y] = 'O';
 
-			if (IsThereAFruit(head_position.x, head_position.y)){
+			if (IsThereAFruit(head_position)){
 				end_tail.x++;
 				fruits++;
 				fruit_position.x = rand() % ROWS-2 + 2;
@@ -176,7 +173,7 @@ public:
 			field[end_tail.x][end_tail.y] = ' ';
 			end_tail.x--;
 			// Meter toda la funcion dentro de la funcion InsideField 
-			if (InsideField(head_position.x, head_position.y) == false)
+			if (InsideField(head_position) == false)
 				GAMEOVER = true;
 		}
 
@@ -185,7 +182,7 @@ public:
 			head_position.x++;
 			field[head_position.x][head_position.y] = 'O';
 
-			if (IsThereAFruit(head_position.x, head_position.y)){
+			if (IsThereAFruit(head_position)){
 				end_tail.x--;
 				fruits++;
 				fruit_position.x = rand() % ROWS-2 + 2;
@@ -196,7 +193,7 @@ public:
 			field[end_tail.x][end_tail.y] = ' ';
 			end_tail.x++;
 			
-			if (InsideField(head_position.x, head_position.y) == false)
+			if (InsideField(head_position) == false)
 				GAMEOVER = true;
 		}
 
@@ -205,7 +202,7 @@ public:
 			head_position.y--;
 			field[head_position.x][head_position.y] = 'O';
 
-			if (IsThereAFruit(head_position.x, head_position.y)){
+			if (IsThereAFruit(head_position)){
 				end_tail.y++;
 				fruits++;
 				fruit_position.x = rand() % ROWS-2 + 2;
@@ -216,7 +213,7 @@ public:
 			field[end_tail.x][end_tail.y] = ' ';
 			end_tail.y--;
 			
-			if (InsideField(head_position.x, head_position.y) == false)
+			if (InsideField(head_position) == false)
 				GAMEOVER = true;
 		}
 
@@ -225,7 +222,7 @@ public:
 			head_position.y++;
 			field[head_position.x][head_position.y] = 'O';
 
-			if (IsThereAFruit(head_position.x, head_position.y)){
+			if (IsThereAFruit(head_position)){
 				end_tail.y--;
 				fruits++;
 				fruit_position.x = rand() % ROWS-2 + 2;
@@ -236,7 +233,7 @@ public:
 			field[end_tail.x][end_tail.y] = ' ';
 			end_tail.y++;
 			
-			if (InsideField(head_position.x, head_position.y) == false)
+			if (InsideField(head_position) == false)
 				GAMEOVER = true;
 		}
 		
