@@ -59,8 +59,8 @@ private:
 	Point end_tail;
 	int fruits;
 
-	bool InsideField (Point position){
-		return 0 <= position.x && position.x < COLUMNS && 0 <= position.y && position.y < ROWS;
+	bool InsideField (int positionX, int positionY){
+		return 0 <= positionX && positionX < COLUMNS && 0 <= positionY && positionY < ROWS;
 	}
 
 	//change the direction, works with the ASCII value of numbers 
@@ -117,6 +117,7 @@ public:
 	//Draw the world
 	void Draw (){
 		system("clear");
+		//Draw corners
 		for (int j = 0 ; j < ROWS+2; j++)
 			cout << "#";
 
@@ -136,7 +137,7 @@ public:
 			}
 			cout << endl;
 		}
-
+		//Drow corners
 		for (int j = 0 ; j < ROWS+2; j++)
 			cout << "#";
 		cout << endl << endl << endl << endl;
@@ -145,35 +146,86 @@ public:
 		cout << "Fruits: " << fruits << endl;
 
 	}
-	void MoveHeadTail(string direction){
+	void MoveHead(){
+		Input();
 
+		if(looking == UP){
+			if (InsideField(head_position.x - 1 , head_position.y) == false){
+				GAMEOVER = true;
+			}else{
+				field[head_position.x][head_position.y] = ' ';
+				head_position.x--;
+				field[head_position.x][head_position.y] = 'O';
+			}
+		}
+
+		if(looking == DOWN){
+			if (InsideField(head_position.x + 1, head_position.y) == false){
+				GAMEOVER = true;
+			}else{
+				field[head_position.x][head_position.y] = ' ';
+				head_position.x++;
+				field[head_position.x][head_position.y] = 'O';
+			}
+		}
+
+		if(looking == LEFT){
+			if (InsideField(head_position.x, head_position.y - 1) == false){
+				GAMEOVER = true;
+			}else{
+				field[head_position.x][head_position.y] = ' ';
+				head_position.y--;
+				field[head_position.x][head_position.y] = 'O';
+			}
+		}
+
+		if(looking == RIGHT){
+			if (InsideField(head_position.x, head_position.y + 1) == false){
+				GAMEOVER = true;
+			}else
+			field[head_position.x][head_position.y] = ' ';
+			head_position.y++;
+			field[head_position.x][head_position.y] = 'O';
+		}
 	}
 	//Check if there is a fruit in a given position
 	bool IsThereAFruit(Point position){
 		return position.x == fruit_position.x && position.y == fruit_position.y;
 	}
 
+	void CreateFruit(){
+	fruits++;
+	fruit_position.x = rand() % COLUMNS-2 + 2;
+	fruit_position.y = rand() % ROWS-2 + 2;
+	field[fruit_position.x][fruit_position.y] = 'F';
+
+	}
+
 	void Move(){
 		Input();
+		MoveHead();
+		if (IsThereAFruit(head_position)){
+			CreateFruit();
+		}
 
 		//Move the snake
+		/*
 		if (looking == UP){
 			field[head_position.x][head_position.y] = 'o';
 			head_position.x--;
 			field[head_position.x][head_position.y] = 'O';
 
 			if (IsThereAFruit(head_position)){
-				end_tail.x++;
 				fruits++;
-				fruit_position.x = rand() % ROWS-2 + 2;
-				fruit_position.y = rand() % COLUMNS-2 + 2;
+				fruit_position.x = rand() % COLUMNS-2 + 2;
+				fruit_position.y = rand() % ROWS-2 + 2;
 				field[fruit_position.x][fruit_position.y] = 'F';
 			}
 			
 			field[end_tail.x][end_tail.y] = ' ';
 			end_tail.x--;
 			// Meter toda la funcion dentro de la funcion InsideField 
-			if (InsideField(head_position) == false)
+			if (InsideField(head_position.x, head_position.y) == false)
 				GAMEOVER = true;
 		}
 
@@ -185,15 +237,15 @@ public:
 			if (IsThereAFruit(head_position)){
 				end_tail.x--;
 				fruits++;
-				fruit_position.x = rand() % ROWS-2 + 2;
-				fruit_position.y = rand() % COLUMNS-2 + 2;
+				fruit_position.x = rand() % COLUMNS-2 + 2;
+				fruit_position.y = rand() % ROWS-2 + 2;
 				field[fruit_position.x][fruit_position.y] = 'F';
 			}
 
 			field[end_tail.x][end_tail.y] = ' ';
 			end_tail.x++;
 			
-			if (InsideField(head_position) == false)
+			if (InsideField(head_position.x, head_position.y) == false)
 				GAMEOVER = true;
 		}
 
@@ -205,15 +257,15 @@ public:
 			if (IsThereAFruit(head_position)){
 				end_tail.y++;
 				fruits++;
-				fruit_position.x = rand() % ROWS-2 + 2;
-				fruit_position.y = rand() % COLUMNS-2 + 2;
+				fruit_position.x = rand() % COLUMNS-2 + 2;
+				fruit_position.y = rand() % ROWS-2 + 2;
 				field[fruit_position.x][fruit_position.y] = 'F';
 			}
 
 			field[end_tail.x][end_tail.y] = ' ';
 			end_tail.y--;
 			
-			if (InsideField(head_position) == false)
+			if (InsideField(head_position.x, head_position.y) == false)
 				GAMEOVER = true;
 		}
 
@@ -225,20 +277,19 @@ public:
 			if (IsThereAFruit(head_position)){
 				end_tail.y--;
 				fruits++;
-				fruit_position.x = rand() % ROWS-2 + 2;
-				fruit_position.y = rand() % COLUMNS-2 + 2;
+				fruit_position.x = rand() % COLUMNS-2 + 2;
+				fruit_position.y = rand() % ROWS-2 + 2;
 				field[fruit_position.x][fruit_position.y] = 'F';
 			}
 
 			field[end_tail.x][end_tail.y] = ' ';
 			end_tail.y++;
 			
-			if (InsideField(head_position) == false)
+			if (InsideField(head_position.x, head_position.y) == false)
 				GAMEOVER = true;
 		}
 		
-		//Eat the fruit
-				
+		*/		
 	}
 
 };
@@ -250,7 +301,15 @@ int main(){
 	while (GAMEOVER == false){
 		snake.Draw();
 		snake.Move();
-		usleep(200000);
+		usleep(100000);
 	}
+
+	system("clear");
+	for(int i = 0; i <= 10; i++)
+		cout << endl;
+	cout << "\tGAMEOVER!";
+
+	for(int i = 0; i <= 10; i++)
+		cout << endl;
 	
 }
