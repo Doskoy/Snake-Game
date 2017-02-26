@@ -36,6 +36,7 @@ int _kbhit() {
 #include <iostream>
 #include <unistd.h> //usleep()
 #include <stdlib.h> //rand()
+#include <vector>
 using namespace std;
 
 static bool GAMEOVER = false;
@@ -44,6 +45,61 @@ enum Directions{STOP, UP, DOWN, LEFT, RIGHT};
 struct Point{
 	int x;
 	int y;
+};
+
+class Tail{
+private:
+	static const int SIZE = 100;
+	Point private_vector[SIZE];
+	int total_used;
+
+public:
+	Tail():total_used(0){}
+
+	int GetTotal_used(){
+		return total_used;
+	}
+
+	int SetTotal_used(int new_total_used){
+		total_used = new_total_used;
+	}
+
+	int Capacity(){
+		return SIZE;
+	}
+
+	void DeleteTail(){
+		total_used = 0;
+	}
+
+	void Add(Point new_point){
+		if(total_used < SIZE){
+			private_vector[total_used] = new_point;
+			total_used++;
+		}
+	}
+
+	void ChangeValue(int position, Point new_value){
+		if(position >= 0 && position < total_used)
+			private_vector[position] = new_value;
+	}
+
+	Point Element(int index){
+		return private_vector[index];
+	}
+
+	void Insert(int position, Point new_value){
+      if (total_used < SIZE  &&  position >= 0    
+         &&  position <= total_used){
+
+         for (int i = total_used ; i > position ; i--)
+            private_vector[i] = private_vector[i-1];
+
+         private_vector[position] = new_value;
+         total_used++;
+      }
+   }
+
 };
 
 class Snake{
@@ -55,8 +111,8 @@ private:
 	Point head_position;
 	Point fruit_position;
 	bool eat_fruit = false;
+	Tail tail; 
 
-	Point end_tail;
 	int fruits;
 
 	bool InsideField (int positionX, int positionY){
@@ -104,8 +160,11 @@ public:
 		head_position.y = ROWS/2;
 		fruit_position.x = rand() % COLUMNS-2 + 2;
 		fruit_position.y = rand() % ROWS-2 + 2;
-
-		end_tail = head_position;
+		for (int i = 0; i < 3; ++i)
+		{
+			tail.Add(head_position);
+		}
+		
 
 		field[head_position.x][head_position.y] = 'O';
 		field[fruit_position.x][fruit_position.y] = 'F';
@@ -144,8 +203,10 @@ public:
 
 
 		cout << "Fruits: " << fruits << endl;
+		cout << "Use the numeric keys for move: 8 -> UP | 4 -> LEFT | 6 -> RIGHT | 2 -> DOWN \n";
 
 	}
+
 	void MoveHead(){
 		Input();
 
@@ -153,9 +214,11 @@ public:
 			if (InsideField(head_position.x - 1 , head_position.y) == false){
 				GAMEOVER = true;
 			}else{
-				field[head_position.x][head_position.y] = ' ';
+				//field[head_position.x][head_position.y] = ' ';
+				if(field[head_position.x - 1][head_position.y] == 'o')
+				GAMEOVER = true;
 				head_position.x--;
-				field[head_position.x][head_position.y] = 'O';
+				//field[head_position.x][head_position.y] = 'O';
 			}
 		}
 
@@ -163,9 +226,11 @@ public:
 			if (InsideField(head_position.x + 1, head_position.y) == false){
 				GAMEOVER = true;
 			}else{
-				field[head_position.x][head_position.y] = ' ';
+				//field[head_position.x][head_position.y] = ' ';
+				if(field[head_position.x+1][head_position.y] == 'o')
+				GAMEOVER = true;
 				head_position.x++;
-				field[head_position.x][head_position.y] = 'O';
+				//field[head_position.x][head_position.y] = 'O';
 			}
 		}
 
@@ -173,9 +238,11 @@ public:
 			if (InsideField(head_position.x, head_position.y - 1) == false){
 				GAMEOVER = true;
 			}else{
-				field[head_position.x][head_position.y] = ' ';
+				//field[head_position.x][head_position.y] = ' ';
+				if(field[head_position.x][head_position.y-1] == 'o')
+				GAMEOVER = true;
 				head_position.y--;
-				field[head_position.x][head_position.y] = 'O';
+				//field[head_position.x][head_position.y] = 'O';
 			}
 		}
 
@@ -183,11 +250,25 @@ public:
 			if (InsideField(head_position.x, head_position.y + 1) == false){
 				GAMEOVER = true;
 			}else
-			field[head_position.x][head_position.y] = ' ';
+			//field[head_position.x][head_position.y] = ' ';
+			if(field[head_position.x][head_position.y+1] == 'o')
+				GAMEOVER = true;
 			head_position.y++;
-			field[head_position.x][head_position.y] = 'O';
+			//field[head_position.x][head_position.y] = 'O';
 		}
 	}
+
+	void MoveTail(){
+		tail.Insert(0, head_position);
+		tail.SetTotal_used(tail.GetTotal_used() - 1);
+		for(int i = 0; i < tail.GetTotal_used() -1 ; i++){
+			field[tail.Element(i).x][tail.Element(i).y] = 'o';
+		}
+		field[tail.Element(tail.GetTotal_used() -1 ).x][tail.Element(tail.GetTotal_used() -1 ).y] = ' ';
+		field[head_position.x][head_position.y] = 'O';
+	}
+
+
 	//Check if there is a fruit in a given position
 	bool IsThereAFruit(Point position){
 		return position.x == fruit_position.x && position.y == fruit_position.y;
@@ -205,94 +286,14 @@ public:
 		Input();
 		MoveHead();
 		if (IsThereAFruit(head_position)){
+			tail.SetTotal_used(tail.GetTotal_used() + 1);
 			CreateFruit();
 		}
-
-		//Move the snake
-		/*
-		if (looking == UP){
-			field[head_position.x][head_position.y] = 'o';
-			head_position.x--;
-			field[head_position.x][head_position.y] = 'O';
-
-			if (IsThereAFruit(head_position)){
-				fruits++;
-				fruit_position.x = rand() % COLUMNS-2 + 2;
-				fruit_position.y = rand() % ROWS-2 + 2;
-				field[fruit_position.x][fruit_position.y] = 'F';
-			}
-			
-			field[end_tail.x][end_tail.y] = ' ';
-			end_tail.x--;
-			// Meter toda la funcion dentro de la funcion InsideField 
-			if (InsideField(head_position.x, head_position.y) == false)
-				GAMEOVER = true;
-		}
-
-		if (looking == DOWN){
-			field[head_position.x][head_position.y] = 'o';
-			head_position.x++;
-			field[head_position.x][head_position.y] = 'O';
-
-			if (IsThereAFruit(head_position)){
-				end_tail.x--;
-				fruits++;
-				fruit_position.x = rand() % COLUMNS-2 + 2;
-				fruit_position.y = rand() % ROWS-2 + 2;
-				field[fruit_position.x][fruit_position.y] = 'F';
-			}
-
-			field[end_tail.x][end_tail.y] = ' ';
-			end_tail.x++;
-			
-			if (InsideField(head_position.x, head_position.y) == false)
-				GAMEOVER = true;
-		}
-
-		if (looking == LEFT){
-			field[head_position.x][head_position.y] = 'o';
-			head_position.y--;
-			field[head_position.x][head_position.y] = 'O';
-
-			if (IsThereAFruit(head_position)){
-				end_tail.y++;
-				fruits++;
-				fruit_position.x = rand() % COLUMNS-2 + 2;
-				fruit_position.y = rand() % ROWS-2 + 2;
-				field[fruit_position.x][fruit_position.y] = 'F';
-			}
-
-			field[end_tail.x][end_tail.y] = ' ';
-			end_tail.y--;
-			
-			if (InsideField(head_position.x, head_position.y) == false)
-				GAMEOVER = true;
-		}
-
-		if (looking == RIGHT){
-			field[head_position.x][head_position.y] = 'o';
-			head_position.y++;
-			field[head_position.x][head_position.y] = 'O';
-
-			if (IsThereAFruit(head_position)){
-				end_tail.y--;
-				fruits++;
-				fruit_position.x = rand() % COLUMNS-2 + 2;
-				fruit_position.y = rand() % ROWS-2 + 2;
-				field[fruit_position.x][fruit_position.y] = 'F';
-			}
-
-			field[end_tail.x][end_tail.y] = ' ';
-			end_tail.y++;
-			
-			if (InsideField(head_position.x, head_position.y) == false)
-				GAMEOVER = true;
-		}
-		
-		*/		
+		MoveTail();
 	}
 
 };
+
 
 int main(){
 	srand(time(NULL));
