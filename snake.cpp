@@ -46,7 +46,9 @@ struct Point{
 	int x;
 	int y;
 };
-
+/*
+Mostly this class is a vector where you store the positions of the tails
+*/
 class Tail{
 private:
 	static const int SIZE = 100;
@@ -104,8 +106,9 @@ public:
 
 class Snake{
 private:
-	static const int ROWS = 40;
-	static const int COLUMNS = 20;
+	//ROWS and COLUMNS are the size of the field
+	static const int ROWS = 30;
+	static const int COLUMNS = 15;
 	char field[COLUMNS][ROWS];
 	Directions looking; 
 	Point head_position;
@@ -201,6 +204,7 @@ public:
 			cout << "#";
 		cout << endl << endl << endl << endl;
 
+		cout << "Fruit position x-> " << fruit_position.x << " y-> " << fruit_position.y << endl;
 
 		cout << "Fruits: " << fruits << endl;
 		cout << "Use the numeric keys for move: 8 -> UP | 4 -> LEFT | 6 -> RIGHT | 2 -> DOWN \n";
@@ -214,11 +218,9 @@ public:
 			if (InsideField(head_position.x - 1 , head_position.y) == false){
 				GAMEOVER = true;
 			}else{
-				//field[head_position.x][head_position.y] = ' ';
 				if(field[head_position.x - 1][head_position.y] == 'o')
 				GAMEOVER = true;
 				head_position.x--;
-				//field[head_position.x][head_position.y] = 'O';
 			}
 		}
 
@@ -226,11 +228,9 @@ public:
 			if (InsideField(head_position.x + 1, head_position.y) == false){
 				GAMEOVER = true;
 			}else{
-				//field[head_position.x][head_position.y] = ' ';
 				if(field[head_position.x+1][head_position.y] == 'o')
 				GAMEOVER = true;
 				head_position.x++;
-				//field[head_position.x][head_position.y] = 'O';
 			}
 		}
 
@@ -238,11 +238,9 @@ public:
 			if (InsideField(head_position.x, head_position.y - 1) == false){
 				GAMEOVER = true;
 			}else{
-				//field[head_position.x][head_position.y] = ' ';
 				if(field[head_position.x][head_position.y-1] == 'o')
 				GAMEOVER = true;
 				head_position.y--;
-				//field[head_position.x][head_position.y] = 'O';
 			}
 		}
 
@@ -250,14 +248,12 @@ public:
 			if (InsideField(head_position.x, head_position.y + 1) == false){
 				GAMEOVER = true;
 			}else
-			//field[head_position.x][head_position.y] = ' ';
 			if(field[head_position.x][head_position.y+1] == 'o')
 				GAMEOVER = true;
 			head_position.y++;
-			//field[head_position.x][head_position.y] = 'O';
 		}
 	}
-
+ 	//Move the tail positions through the vector
 	void MoveTail(){
 		tail.Insert(0, head_position);
 		tail.SetTotal_used(tail.GetTotal_used() - 1);
@@ -276,8 +272,8 @@ public:
 
 	void CreateFruit(){
 	fruits++;
-	fruit_position.x = rand() % COLUMNS-2 + 2;
-	fruit_position.y = rand() % ROWS-2 + 2;
+	fruit_position.x = rand() % (COLUMNS-2) + 2;
+	fruit_position.y = rand() % (ROWS-2) + 2;
 	field[fruit_position.x][fruit_position.y] = 'F';
 
 	}
@@ -302,6 +298,7 @@ int main(){
 	while (GAMEOVER == false){
 		snake.Draw();
 		snake.Move();
+		//Speed of the snake
 		usleep(100000);
 	}
 
